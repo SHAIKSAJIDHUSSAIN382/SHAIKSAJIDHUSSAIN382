@@ -3,11 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Real-Time Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .messages {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+        .messages ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        .messages ul li {
+            margin-bottom: 10px;
+            background-color: #e1ffc7;
+            padding: 10px;
+            border-radius: 12px;
+            max-width: 80%;
+        }
+        .input-container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .input-container input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        .input-container button {
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .input-container button:hover {
+            background-color: #218838;
+        }
+        .emoji-picker {
+            position: absolute;
+            bottom: 100px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 5px;
+            display: none;
+        }
+        .input-container input[type="file"] {
+            margin-right: 10px;
+        }
+    </style>
 </head>
 <body>
-    <h1>
-        this is version v2
-    </h1>
+
+<div class="container">
+    <div class="messages" id="message-container">
+        <ul id="messages-list"></ul>
+    </div>
+    <div class="input-container">
+        <input type="text" id="message-input" placeholder="Type your message here">
+        <button id="emoji-btn">😀</button>
+        <input type="file" id="file-input">
+        <button id="send-btn">Send</button>
+    </div>
+    <div class="emoji-picker" id="emoji-picker">
+        <span>😀</span> <span>😁</span> <span>😂</span> <span>😃</span> <span>😄</span>
+        <span>😅</span> <span>😆</span> <span>😉</span> <span>😊</span> <span>😋</span>
+    </div>
+</div>
+
+<script>
+    const messagesContainer = document.getElementById('message-container');
+    const messageList = document.getElementById('messages-list');
+    const messageInput = document.getElementById('message-input');
+    const sendBtn = document.getElementById('send-btn');
+    const emojiBtn = document.getElementById('emoji-btn');
+    const emojiPicker = document.getElementById('emoji-picker');
+    const fileInput = document.getElementById('file-input');
+
+    let messages = JSON.parse(localStorage.getItem('messages')) || [];
+
+    // Function to display messages
+    const displayMessages = () => {
+        messageList.innerHTML = '';
+        messages.forEach(message => {
+            const li = document.createElement('li');
+            if (message.text) li.innerHTML = `${message.text} <br> <small>${message.time}</small>`;
+            if (message.image) li.innerHTML = `<img src="${message.image}" alt="Uploaded Image" style="max-width:100%;"><br> <small>${message.time}</small>`;
+            messageList.appendChild(li);
+        });
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    };
+
+    // Send message function
+    sendBtn.addEventListener('click', () => {
+        const text = messageInput.value.trim();
+        const time = new Date().toLocaleTimeString();
+
+        if (text) {
+            const message = { text, time };
+            messages.push(message);
+            localStorage.setItem('messages', JSON.stringify(messages));
+            displayMessages();
+            messageInput.value = '';
+        }
+    });
+
+    // Send image function
+    fileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const imageSrc = e.target.result;
+            const time = new Date().toLocaleTimeString();
+            const message = { image: imageSrc, time };
+            messages.push(message);
+            localStorage.setItem('messages', JSON.stringify(messages));
+            displayMessages();
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // Show emoji picker
+    emojiBtn.addEventListener('click', () => {
+        emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // Add emoji to message input
+    emojiPicker.addEventListener('click', (e) => {
+        if (e.target.tagName === 'SPAN') {
+            messageInput.value += e.target.textContent;
+        }
+    });
+
+    // Initialize by displaying stored messages
+    displayMessages();
+</script>
+
 </body>
 </html>
