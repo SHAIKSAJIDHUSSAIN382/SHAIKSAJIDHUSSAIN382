@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futuristic Real-Time Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            transition: background-color .5s;
+        }
+        .light-mode {
+            background-color: #f5f5f5;
+            color: #121212;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background-color: #1e1e1e;
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            position: relative;
+        }
+        .messages {
+            height: 400px;
+            overflow-y: auto;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 20px;
+            background-color: #2a2a2a;
+        }
+        .messages ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        .messages ul li {
+            margin-bottom: 10px;
+            background-color: #3a3a3c;
+            padding: 10px;
+            border-radius: 12px;
+            max-width: 80%;
+            transition: background-color .3s ease-in-out, transform .2s ease-in-out; 
+            position: relative;
+        }
+        .messages ul li:hover {
+            background-color: #4a4a4c;
+            transform: translateY(-2px);
+        }
+        .input-container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .input-container input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            margin-right: 10px;
+            background-color: #3a3a3c;
+            color: #ffffff;
+        }
+        .input-container input[type="text"]:focus {
+            outline: none;
+            box-shadow: 0 0 5px rgba(255,255,255,0.5);
+        }
+        .input-container button {
+            padding: 10px 15px;
+            background-color: #007aff;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color .3s ease-in-out, transform .2s ease-in-out;
+        }
+        .input-container button:hover {
+            background-color: #005bb5;
+            transform: scale(1.05);
+        }
+        .emoji-picker {
+           position:absolute;
+           bottom:-150%;
+           left:-50%;
+           background-color:#1e1e1e;
+           border-radius :8px;
+           display:none;
+           padding :10px;
+           box-shadow :0px -2px 20px rgba(0,0,0,.5);
+       }
+       .emoji-picker span {
+           cursor:pointer;
+           margin-right :5px;
+           font-size :24px;
+           transition :transform .2s;
+       }
+       .emoji-picker span:hover {
+           transform :scale(1.2);
+       }
+       .light-mode .emoji-picker {
+           background-color: #f0f0f0;
+       }
+        /* Dark/Light Mode Toggle Button */
+        .theme-toggle {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            background-color: #4a4a4c;
+            color: #ffffff;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .theme-toggle.light-mode {
+            background-color: #cccccc;
+            color: #121212;
+        }
+        /* Typing Indicator */
+        .typing-indicator {
+            font-style: italic;
+            font-size: 12px;
+            color: #aaaaaa;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="theme-toggle" id="theme-toggle">Toggle Dark/Light Mode</div>
+    <div class="messages" id="message-container">
+        <ul id="messages-list"></ul>
+        <div class="typing-indicator" id="typing-indicator" style="display: none;">User is typing...</div>
+    </div>
+    <div class="input-container">
+        <input type="text" id="message-input" placeholder="Type your message here">
+        <button id="emoji-btn">😀</button>
+        <input type="file" id="file-input" style="display:none;">
+        <button id="send-btn">Send</button>
+    </div>
+    <div class="emoji-picker" id="emoji-picker">
+        <span>😀</span> <span>😁</span> <span>😂</span> <span>😃</span> <span>😄</span>
+        <span>😅</span> <span>😆</span> <span>😉</span> <span>😊</span> <span>😋</span>
+    </div>
+</div>
+
+<script>
+    const messagesContainer = document.getElementById('message-container');
+    const messageList = document.getElementById('messages-list');
+    const messageInput = document.getElementById('message-input');
+    const sendBtn = document.getElementById('send-btn');
+    const emojiBtn = document.getElementById('emoji-btn');
+    const emojiPicker = document.getElementById('emoji-picker');
+    const fileInput = document.getElementById('file-input');
+    const themeToggle = document.getElementById('theme-toggle');
+    const typingIndicator = document.getElementById('typing-indicator');
+    
+    let messages = JSON.parse(localStorage.getItem('messages')) || [];
+
+    // Function to display messages
+    const displayMessages = () => {
+        messageList.innerHTML = '';
+        messages.forEach((message, index) => {
+            const li = document.createElement('li');
+            li.innerHTML = `${message.text ? message.text : `<img src="${message.image}" alt="Image" style="max-width: 100%;">`} <br><small>${message.time}</small>`;
+            messageList.appendChild(li);
+        });
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    };
+
+    // Send message function
+    sendBtn.addEventListener('click', () => {
+        const text = messageInput.value.trim();
+        const time = new Date().toLocaleTimeString();
+
+        if (text) {
+            const message = { text, time };
+            messages.push(message);
+            localStorage.setItem('messages', JSON.stringify(messages));
+            displayMessages();
+            messageInput.value = '';
+        }
+    });
+
+    // Show emoji picker
+    emojiBtn.addEventListener('click', () => {
+        emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // Add emoji to message input
+    emojiPicker.addEventListener('click', (e) => {
+        if (e.target.tagName === 'SPAN') {
+            messageInput.value += e.target.textContent;
+        }
+    });
+
+    // Typing Indicator Logic
+    messageInput.addEventListener('input', () => {
+        typingIndicator.style.display = messageInput.value ? 'block' : 'none';
+    });
+
+    // Theme Toggle
+    themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('light-mode');
+        themeToggle.classList.toggle('light-mode');
+    });
+
+    // Initialize stored messages
+    displayMessages();
+</script>
+
+</body>
+</html>
