@@ -125,7 +125,6 @@
 
     let messages = JSON.parse(localStorage.getItem('messages')) || [];
 
-    // Function to display messages
     const displayMessages = () => {
         messageList.innerHTML = '';
         messages.forEach(message => {
@@ -137,7 +136,7 @@
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     };
 
-    // Send message function
+
     sendBtn.addEventListener('click', () => {
       const text = messageInput.value.trim();
       const time = new Date().toLocaleTimeString();
@@ -151,7 +150,7 @@
       }
     });
 
-    // Send image function
+  
     fileInput.addEventListener('change', (event) => {
       const file = event.target.files[0];
       const reader = new FileReader();
@@ -166,19 +165,19 @@
       reader.readAsDataURL(file);
     });
 
-    // Show emoji picker
+
     emojiBtn.addEventListener('click', () => {
       emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'block' : 'none';
     });
 
-    // Add emoji to message input
+
     emojiPicker.addEventListener('click', (e) => {
       if (e.target.tagName === 'SPAN') {
           messageInput.value += e.target.textContent;
       }
     });
 
-    // Initialize by displaying stored messages
+ 
     displayMessages();
 </script>
 
