@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To-Do List</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .app-container {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      width: 100%;
+      max-width: 600px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .input-container {
+      display: flex;
+      margin-bottom: 20px;
+    }
+    #taskInput {
+      width: 60%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    #taskPriority {
+      width: 20%;
+      padding: 8px;
+      margin-left: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    #taskDueDate {
+      width: 20%;
+      padding: 8px;
+      margin-left: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    #addTaskBtn {
+      width: 20%;
+      padding: 8px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #addTaskBtn:hover {
+      background-color: #218838;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      margin-bottom: 10px;
+      background-color: #f9f9f9;
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    li.completed {
+      text-decoration: line-through;
+      color: #888;
+    }
+    button {
+      background-color: transparent;
+      border: none;
+      color: #e74c3c;
+      cursor: pointer;
+    }
+    button:hover {
+      color: #c0392b;
+    }
+    .task-priority {
+      font-weight: bold;
+    }
+    .task-due {
+      font-size: 12px;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <h1>My To-Do List</h1>
+    <div class="input-container">
+      <input type="text" id="taskInput" placeholder="Enter a new task" />
+      <select id="taskPriority">
+        <option value="Low">Low</option>
+        <option value="Medium">Medium</option>
+        <option value="High">High</option>
+      </select>
+      <input type="date" id="taskDueDate" />
+      <button id="addTaskBtn">Add Task</button>
+    </div>
+    <ul id="taskList"></ul>
+    <button id="clearAllBtn" style="width: 100%; background-color: #f44336; color: white;">Clear All Tasks</button>
+  </div>
+  <script>
+    const taskInput = document.getElementById("taskInput");
+    const taskPriority = document.getElementById("taskPriority");
+    const taskDueDate = document.getElementById("taskDueDate");
+    const addTaskBtn = document.getElementById("addTaskBtn");
+    const taskList = document.getElementById("taskList");
+    const clearAllBtn = document.getElementById("clearAllBtn");
+
+    function addTask() {
+      const taskText = taskInput.value.trim();
+      const priority = taskPriority.value;
+      const dueDate = taskDueDate.value;
+      if (taskText !== "") {
+        const li = document.createElement("li");
+
+        const priorityLabel = document.createElement("span");
+        priorityLabel.classList.add("task-priority");
+        priorityLabel.textContent = `[${priority}]`;
+
+        const dueDateLabel = document.createElement("span");
+        dueDateLabel.classList.add("task-due");
+        dueDateLabel.textContent = `Due: ${dueDate ? dueDate : "No Due Date"}`;
+
+        const taskTextNode = document.createElement("span");
+        taskTextNode.textContent = taskText;
+
+        const completeBtn = document.createElement("button");
+        completeBtn.textContent = "Complete";
+        completeBtn.addEventListener("click", () => {
+          li.classList.toggle("completed");
+        });
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "Delete";
+        deleteBtn.addEventListener("click", () => {
+          taskList.removeChild(li);
+        });
+
+        li.appendChild(priorityLabel);
+        li.appendChild(taskTextNode);
+        li.appendChild(dueDateLabel);
+        li.appendChild(completeBtn);
+        li.appendChild(deleteBtn);
+
+        taskList.appendChild(li);
+
+        taskInput.value = "";
+        taskPriority.value = "Low";
+        taskDueDate.value = "";
+      }
+    }
+
+    function clearAllTasks() {
+      taskList.innerHTML = "";
+    }
+
+    addTaskBtn.addEventListener("click", addTask);
+    taskInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        addTask();
+      }
+    });
+
+    clearAllBtn.addEventListener("click", clearAllTasks);
+  </script>
+</body>
+</html>
